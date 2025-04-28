@@ -175,11 +175,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0062FF), Color(0xFF00A7FF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.blueAccent,
+        // gradient: LinearGradient(
+        //   colors: [Color(0xFF0062FF), Color(0xFF00A7FF)],
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        // ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(

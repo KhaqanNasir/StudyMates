@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-
-
 import 'login.dart';
-import 'welcome.dart';
 import 'signup.dart';
 import 'home.dart';
 import 'past_paper.dart';
@@ -12,6 +9,7 @@ import 'discussion.dart';
 import 'forget_password.dart';
 import 'otp_verification.dart';
 import 'study_groups.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -65,9 +63,9 @@ class MyApp extends StatelessWidget {
           labelLarge: TextStyle(fontSize: 18),
         ),
       ),
-      initialRoute: '/welcome',
+      initialRoute: '/',
       routes: {
-        '/welcome': (context) => const WelcomePage(),
+        '/': (context) => const SplashScreen(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignUpPage(),
         '/home': (context) => const HomeScreen(),
@@ -75,9 +73,8 @@ class MyApp extends StatelessWidget {
         '/learn-more': (context) => const LearnMorePage(),
         '/study-materials': (context) => const StudyMaterialsScreen(),
         '/discussion': (context) => const DiscussionScreen(),
-
         '/study-groups': (context) => const StudyGroupsScreen(),
-        '/forget-password' : (context) => const ForgotPasswordPage(),
+        '/forget-password': (context) => const ForgotPasswordPage(),
         '/otp-verification': (context) => const OtpVerificationPage(),
       },
     );

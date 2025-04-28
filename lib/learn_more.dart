@@ -56,7 +56,7 @@ class LearnMorePage extends StatelessWidget {
             _buildContactCard(),
 
             const SizedBox(height: 20),
-            _buildFooter(),
+            _buildFooter(context),
           ],
         ),
       ),
@@ -149,32 +149,30 @@ class LearnMorePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter() {
+  // ===== Footer =====
+  Widget _buildFooter(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      margin: const EdgeInsets.only(top: 10),
-      color: Colors.blueAccent.withOpacity(0.1),
+      color: Colors.blueAccent.withOpacity(0.05),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             "Study Mates",
             style: GoogleFonts.poppins(
-              fontSize: 22,
+              fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.blueAccent,
-              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             "© 2025 COMSATS University Islamabad, Sahiwal Campus",
-            style: GoogleFonts.poppins(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-            ),
             textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
           ),
         ],
       ),

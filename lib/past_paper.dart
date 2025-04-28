@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PastPapersScreen extends StatefulWidget {
   const PastPapersScreen({super.key});
@@ -116,32 +117,33 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blueAccent),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        title: const Text(
-          "Past Papers Archive",
-          style: TextStyle(
-            color: Colors.blueAccent,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.blueAccent),
-            onPressed: () {},
+        title: Text(
+          "Past Papers",
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
-        ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
+            // Hero Section
+            _buildHeroSection(),
+
             // Feature Introduction Section
             _buildFeaturesSection(),
 
@@ -162,6 +164,8 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
                 ),
               ),
 
+
+
             // Papers List
             _buildPapersList(),
 
@@ -169,80 +173,86 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
             _buildFaqSection(),
 
             // Footer
-            _buildFooter(),
+            _buildFooter(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeaturesSection() {
+  Widget _buildHeroSection() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      height: 240,
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.blueAccent.withOpacity(0.05),
+        color: Colors.blueAccent,
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Past Papers Collection",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildFeatureItem(
-              Icons.library_books,
-              "Comprehensive Archive",
-              "Access past papers from multiple years to help you prepare for exams."
-          ),
-          _buildFeatureItem(
-              Icons.search,
-              "Easy Navigation",
-              "Filter by department and subject to quickly find what you need."
-          ),
-          _buildFeatureItem(
-              Icons.download,
-              "Instant Access",
-              "Download papers with one click or view them directly in the app."
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.25),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFeatureItem(IconData icon, String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 28),
-          const SizedBox(width: 15),
-          Expanded(
+          Positioned(
+            right: -30,
+            bottom: -20,
+            child: Opacity(
+              opacity: 0.08,
+              child: Icon(Icons.library_books, size: 220, color: Colors.white),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(25),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  "Access Past Papers",
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    height: 1.3,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 10),
                 Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                  "Find solved papers, previous exams & department-wise archives.",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: Colors.white.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.history_edu, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        "100+ papers available",
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -253,73 +263,186 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
     );
   }
 
-  Widget _buildSelectionSection() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+  Widget _buildFeaturesSection() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      margin: const EdgeInsets.only(top: 24, bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Department Dropdown
+          Row(
+            children: [
+              const Icon(Icons.description_outlined, color: Colors.blueAccent, size: 28),
+              const SizedBox(width: 10),
+              Text(
+                "Past Papers Collection",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blueAccent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _buildFeatureItem(
+            Icons.folder_copy_rounded,
+            "Comprehensive Archive",
+            "Explore a wide range of past papers categorized by year and subject.",
+          ),
+          _buildFeatureItem(
+            Icons.tune_rounded,
+            "Smart Filtering",
+            "Easily filter papers by department, semester, or subject in just a few taps.",
+          ),
+          _buildFeatureItem(
+            Icons.cloud_download_rounded,
+            "Quick Access",
+            "Instant view or download available for offline usage anytime.",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String title, String description) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blueAccent.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
+              color: Colors.blueAccent.withOpacity(0.12),
+              shape: BoxShape.circle,
             ),
-            child: DropdownButton<String>(
-              isExpanded: true,
-              hint: const Text("Select Department"),
-              value: _selectedDepartment,
-              items: _pastPapersData.keys.map((String department) {
-                return DropdownMenuItem<String>(
-                  value: department,
-                  child: Text(department),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedDepartment = newValue;
-                  _selectedSubject = null;
-                });
-              },
-              underline: const SizedBox(),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
+            child: Icon(icon, size: 22, color: Colors.blueAccent),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black.withOpacity(0.65),
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 15),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildSelectionSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "🎯 Filter Papers",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Department Dropdown
+          _buildDropdown(
+            hint: "Select Department",
+            value: _selectedDepartment,
+            items: _pastPapersData.keys.toList(),
+            onChanged: (val) {
+              setState(() {
+                _selectedDepartment = val;
+                _selectedSubject = null;
+              });
+            },
+          ),
+
+          const SizedBox(height: 16),
+
           // Subject Dropdown (only shown when department is selected)
           if (_selectedDepartment != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: DropdownButton<String>(
-                isExpanded: true,
-                hint: const Text("Select Subject"),
-                value: _selectedSubject,
-                items: _pastPapersData[_selectedDepartment]!.keys
-                    .map((String subject) {
-                  return DropdownMenuItem<String>(
-                    value: subject,
-                    child: Text(subject),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedSubject = newValue;
-                  });
-                },
-                underline: const SizedBox(),
-                icon: const Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
-              ),
+            _buildDropdown(
+              hint: "Select Subject",
+              value: _selectedSubject,
+              items: _pastPapersData[_selectedDepartment]!.keys.toList(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedSubject = val;
+                });
+              },
             ),
         ],
       ),
     );
   }
+
+  Widget _buildDropdown({
+    required String hint,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+       return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[300]!),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButton<String>(
+        isExpanded: true,
+        hint: Text(hint, style: const TextStyle(fontFamily: 'Poppins')),
+        value: value,
+        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.blueAccent),
+        underline: const SizedBox(),
+        onChanged: onChanged,
+        items: items.map((item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(item, style: const TextStyle(fontFamily: 'Poppins')),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
 
   Widget _buildPapersList() {
     if (_selectedDepartment == null || _selectedSubject == null) {
@@ -327,19 +450,20 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
         padding: const EdgeInsets.all(20),
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.grey[50],
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
-            Icon(Icons.school, size: 60, color: Colors.grey[300]),
+            Icon(Icons.school_outlined, size: 60, color: Colors.grey[300]),
             const SizedBox(height: 16),
             const Text(
-              "Please select a department and subject to view past papers",
+              "Please select a department and subject to view available past papers.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 15,
                 color: Colors.grey,
+                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -357,23 +481,22 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
       itemBuilder: (context, index) {
         final paper = papers[index];
         return Card(
-          elevation: 2,
-          margin: const EdgeInsets.only(bottom: 15),
+          elevation: 3,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
           ),
+          margin: const EdgeInsets.only(bottom: 16),
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             onTap: () {
-              // Handle paper tap (e.g., open PDF viewer)
+              // Open preview
             },
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               child: Row(
                 children: [
-                  // Paper Thumbnail
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: Image.network(
                       paper["image"]!,
                       width: 60,
@@ -387,8 +510,7 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  // Paper Details
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,8 +518,9 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
                         Text(
                           "$_selectedSubject (${paper["year"]})",
                           style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -406,12 +529,12 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[600],
+                            fontFamily: 'Poppins',
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // Action Buttons
                   IconButton(
                     icon: const Icon(Icons.visibility, color: Colors.blueAccent),
                     onPressed: () {
@@ -433,116 +556,96 @@ class _PastPapersScreenState extends State<PastPapersScreen> {
     );
   }
 
+
+  // ===== FAQ Section =====
   Widget _buildFaqSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Forum FAQs",
-            style: TextStyle(
-              fontSize: 18,
+          Text(
+            "Frequently Asked Questions",
+            style: GoogleFonts.poppins(
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           ..._faqs.asMap().entries.map((entry) {
             final index = entry.key;
             final faq = entry.value;
             return Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              elevation: 0,
+              elevation: 1,
+              margin: const EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: Colors.grey[200]!,
-                  width: 1,
-                ),
               ),
               child: ExpansionTile(
+                title: Text(
+                  faq["question"]!,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.black87,
+                  ),
+                ),
+                leading: Icon(
+                  Icons.help_outline,
+                  color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.grey,
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Text(
+                      faq["answer"]!,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                    ),
+                  )
+                ],
                 initiallyExpanded: _expandedFaqs[index] ?? false,
                 onExpansionChanged: (expanded) {
                   setState(() {
                     _expandedFaqs[index] = expanded;
                   });
                 },
-                leading: Icon(
-                  Icons.help_outline,
-                  color: _expandedFaqs[index] ?? false
-                      ? Colors.blueAccent
-                      : Colors.grey,
-                ),
-                title: Text(
-                  faq["question"]!,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: _expandedFaqs[index] ?? false
-                        ? Colors.blueAccent
-                        : Colors.grey[800],
-                  ),
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                    child: Text(
-                      faq["answer"]!,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
-
-  Widget _buildFooter() {
+  // ===== Footer =====
+  Widget _buildFooter(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      margin: const EdgeInsets.only(top: 30),
-      color: Colors.blueAccent.withOpacity(0.1),
+      color: Colors.blueAccent.withOpacity(0.05),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             "Study Mates",
-            style: TextStyle(
-              fontSize: 24,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.blueAccent,
-              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             "© 2025 COMSATS University Islamabad, Sahiwal Campus",
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-            ),
             textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
           ),
         ],
       ),

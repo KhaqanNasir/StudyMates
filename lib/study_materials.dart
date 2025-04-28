@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StudyMaterialsScreen extends StatefulWidget {
   const StudyMaterialsScreen({super.key});
@@ -201,29 +202,24 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blueAccent),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        title: const Text(
-          "Study Materials",
-          style: TextStyle(
-            color: Colors.blueAccent,
-            fontWeight: FontWeight.bold,
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+        title: Text(
+          "Study Material",
+          style: GoogleFonts.poppins(
             fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: Colors.blueAccent, size: 26),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -232,6 +228,10 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
           children: [
             // Hero Section
             _buildHeroSection(),
+
+            // Feature Introduction Section
+            _buildStudyMaterialFeatures(),
+
 
             // Filter Section
             _buildFilterSection(),
@@ -243,7 +243,7 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
             _buildFaqSection(),
 
             // Footer
-            _buildFooter(),
+            _buildFooter(context),
           ],
         ),
       ),
@@ -252,37 +252,30 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
 
   Widget _buildHeroSection() {
     return Container(
-      height: 220,
+      height: 240,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blueAccent.shade400,
-            Colors.blueAccent.shade200,
-          ],
-        ),
+        color: Colors.blueAccent,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.2),
+            color: Colors.blueAccent.withOpacity(0.25),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Stack(
         children: [
           Positioned(
-            right: 20,
-            bottom: 20,
+            right: -30,
+            bottom: -20,
             child: Opacity(
-              opacity: 0.1,
-              child: Icon(Icons.library_books, size: 180, color: Colors.white),
+              opacity: 0.08,
+              child: Icon(Icons.school, size: 220, color: Colors.white),
             ),
           ),
           Padding(
@@ -291,41 +284,42 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  "Academic Resources Hub",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+                Text(
+                  "Explore Study Materials",
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
                     color: Colors.white,
-                    height: 1.2,
+                    height: 1.3,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "Access thousands of verified study materials across all departments",
-                  style: TextStyle(
+                  "Unlock curated notes, guides & past papers by department.",
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
                     color: Colors.white.withOpacity(0.9),
                   ),
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(25),
                     border: Border.all(color: Colors.white.withOpacity(0.3)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.trending_up, color: Colors.white, size: 18),
-                      const SizedBox(width: 6),
+                      const Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
                       Text(
-                        "${_countTotalMaterials()} resources available",
-                        style: const TextStyle(
-                          color: Colors.white,
+                        "${_countTotalMaterials()}+ resources available",
+                        style: GoogleFonts.poppins(
                           fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -338,6 +332,111 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
       ),
     );
   }
+
+
+  Widget _buildStudyMaterialFeatures() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      margin: const EdgeInsets.only(top: 24, bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.indigo.withOpacity(0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.menu_book_rounded, color: Colors.indigo, size: 28),
+              const SizedBox(width: 10),
+              Text(
+                "Why Use Study Materials?",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.indigo,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          Column(
+            children: [
+              _buildStudyMaterialItem(
+                Icons.sticky_note_2_rounded,
+                "Curated Notes",
+                "Get high-quality handwritten and typed notes selected by toppers and professors.",
+                Colors.deepPurpleAccent,
+              ),
+              _buildStudyMaterialItem(
+                Icons.lightbulb_outline_rounded,
+                "Concept Guides",
+                "Understand key concepts easily through simplified visual and text-based summaries.",
+                Colors.teal,
+              ),
+              _buildStudyMaterialItem(
+                Icons.insert_drive_file_outlined,
+                "Organized PDFs",
+                "Access material neatly organized by subject, topic, and difficulty level.",
+                Colors.orangeAccent,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudyMaterialItem(IconData icon, String title, String description, Color iconColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 22, color: iconColor),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black.withOpacity(0.7),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   int _countTotalMaterials() {
     int count = 0;
@@ -355,38 +454,50 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
-            blurRadius: 15,
+            blurRadius: 20,
             offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+            "🎯 Filter Course Content",
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 20),
+
           // Department Dropdown
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
               color: Colors.grey[50],
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!),
+              border: Border.all(color: Colors.grey[300]!),
             ),
             child: DropdownButton<String>(
               isExpanded: true,
               hint: const Text(
                 "Select Department",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(fontFamily: 'Poppins', color: Colors.grey),
               ),
-              value: _selectedDepartment,
+              value: _selectedDepartment ?? _studyMaterialsData.keys.first,
               items: _studyMaterialsData.keys.map((String department) {
                 return DropdownMenuItem<String>(
                   value: department,
                   child: Text(
                     department,
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(fontFamily: 'Poppins', fontSize: 15),
                   ),
                 );
               }).toList(),
@@ -397,10 +508,8 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                 });
               },
               underline: const SizedBox(),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
+              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.blueAccent),
               dropdownColor: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              elevation: 2,
             ),
           ),
           const SizedBox(height: 15),
@@ -412,22 +521,21 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
+                border: Border.all(color: Colors.grey[300]!),
               ),
               child: DropdownButton<String>(
                 isExpanded: true,
                 hint: const Text(
                   "Select Subject",
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(fontFamily: 'Poppins', color: Colors.grey),
                 ),
-                value: _selectedSubject,
-                items: _studyMaterialsData[_selectedDepartment]!.keys
-                    .map((String subject) {
+                value: _selectedSubject ?? _studyMaterialsData[_selectedDepartment!]!.keys.first,
+                items: _studyMaterialsData[_selectedDepartment!]!.keys.map((String subject) {
                   return DropdownMenuItem<String>(
                     value: subject,
                     child: Text(
                       subject,
-                      style: const TextStyle(fontSize: 15),
+                      style: const TextStyle(fontFamily: 'Poppins', fontSize: 15),
                     ),
                   );
                 }).toList(),
@@ -437,23 +545,22 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                   });
                 },
                 underline: const SizedBox(),
-                icon: const Icon(Icons.arrow_drop_down, color: Colors.blueAccent),
+                icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.blueAccent),
                 dropdownColor: Colors.white,
-                borderRadius: BorderRadius.circular(12),
               ),
             ),
 
-          // Material Type Filter
           if (_selectedSubject != null) ...[
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             const Text(
-              "Filter by type:",
+              "📁 Filter by File Type:",
               style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 14,
                 color: Colors.grey,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -471,6 +578,7 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
     );
   }
 
+
   Widget _buildMaterialTypeChip(String type, IconData icon) {
     final isSelected = _selectedMaterialType == type;
     return Padding(
@@ -481,7 +589,14 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
           children: [
             Icon(icon, size: 18, color: isSelected ? Colors.white : Colors.blueAccent),
             const SizedBox(width: 6),
-            Text(type),
+            Text(
+              type,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                color: isSelected ? Colors.white : Colors.blueAccent,
+              ),
+            ),
           ],
         ),
         selected: isSelected,
@@ -491,9 +606,6 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
           });
         },
         selectedColor: Colors.blueAccent,
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.blueAccent,
-        ),
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -504,6 +616,7 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
       ),
     );
   }
+
 
   Widget _buildMaterialsList() {
     if (_selectedDepartment == null || _selectedSubject == null) {
@@ -621,32 +734,26 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
     return AnimatedContainer(
       duration: Duration(milliseconds: 200 + (index * 50)),
       curve: Curves.easeOut,
-      margin: EdgeInsets.only(bottom: 15, top: index == 0 ? 0 : 0),
+      margin: EdgeInsets.only(bottom: 15),
       child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        elevation: 2,
-        shadowColor: Colors.grey.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(15),
+        elevation: 3,
+        shadowColor: Colors.grey.withOpacity(0.15),
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            // Handle material tap
-          },
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {},
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // File Type Icon
                 Container(
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
                     color: material["color"].withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: material["color"].withOpacity(0.3),
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: material["color"].withOpacity(0.3), width: 1.5),
                   ),
                   child: Icon(
                     material["icon"],
@@ -655,7 +762,6 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                   ),
                 ),
                 const SizedBox(width: 15),
-                // Material Details
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -663,6 +769,7 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                       Text(
                         material["title"],
                         style: const TextStyle(
+                          fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -676,14 +783,15 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: material["color"].withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(5),
                             ),
                             child: Text(
                               material["type"],
                               style: TextStyle(
                                 fontSize: 12,
-                                color: material["color"],
                                 fontWeight: FontWeight.w500,
+                                color: material["color"],
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),
@@ -691,6 +799,7 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                           Text(
                             "• ${material["size"]} • ${material["teacher"]}",
                             style: TextStyle(
+                              fontFamily: 'Poppins',
                               fontSize: 12,
                               color: Colors.grey[600],
                             ),
@@ -700,17 +809,17 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
                     ],
                   ),
                 ),
-                // Action Buttons
+                // View & Download buttons
                 IconButton(
-                  icon: Icon(Icons.visibility_outlined, color: Colors.blueAccent),
+                  icon: const Icon(Icons.visibility_outlined, color: Colors.green),
                   onPressed: () {
-                    // Handle preview
+                    // You can open preview modal or page
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.download_outlined, color: Colors.blueAccent),
+                  icon: const Icon(Icons.download_outlined, color: Colors.blue),
                   onPressed: () {
-                    // Handle download
+                    // Trigger file download here
                   },
                 ),
               ],
@@ -721,119 +830,99 @@ class _StudyMaterialsScreenState extends State<StudyMaterialsScreen> {
     );
   }
 
+
+  // ===== FAQ Section =====
   Widget _buildFaqSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Forum FAQs",
-            style: TextStyle(
-              fontSize: 18,
+          Text(
+            "Frequently Asked Questions",
+            style: GoogleFonts.poppins(
+              fontSize: 22,
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           ..._faqs.asMap().entries.map((entry) {
             final index = entry.key;
             final faq = entry.value;
             return Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              elevation: 0,
+              elevation: 1,
+              margin: const EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: Colors.grey[200]!,
-                  width: 1,
-                ),
               ),
               child: ExpansionTile(
+                title: Text(
+                  faq["question"]!,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.black87,
+                  ),
+                ),
+                leading: Icon(
+                  Icons.help_outline,
+                  color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.grey,
+                ),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Text(
+                      faq["answer"]!,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.5,
+                      ),
+                    ),
+                  )
+                ],
                 initiallyExpanded: _expandedFaqs[index] ?? false,
                 onExpansionChanged: (expanded) {
                   setState(() {
                     _expandedFaqs[index] = expanded;
                   });
                 },
-                leading: Icon(
-                  Icons.help_outline,
-                  color: _expandedFaqs[index] ?? false
-                      ? Colors.blueAccent
-                      : Colors.grey,
-                ),
-                title: Text(
-                  faq["question"]!,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: _expandedFaqs[index] ?? false
-                        ? Colors.blueAccent
-                        : Colors.grey[800],
-                  ),
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                    child: Text(
-                      faq["answer"]!,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildFooter() {
+  // ===== Footer =====
+  Widget _buildFooter(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      margin: const EdgeInsets.only(top: 30),
-      color: Colors.blueAccent.withOpacity(0.1),
+      color: Colors.blueAccent.withOpacity(0.05),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             "Study Mates",
-            style: TextStyle(
-              fontSize: 24,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
               fontWeight: FontWeight.w600,
               color: Colors.blueAccent,
-              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             "© 2025 COMSATS University Islamabad, Sahiwal Campus",
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
-            ),
             textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
           ),
         ],
       ),
     );
   }
-
 }

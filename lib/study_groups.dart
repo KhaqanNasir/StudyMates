@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
 
 class StudyGroupsScreen extends StatefulWidget {
   const StudyGroupsScreen({super.key});
@@ -9,10 +11,40 @@ class StudyGroupsScreen extends StatefulWidget {
 
 class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
   String? _selectedDepartment;
-  final Map<int, bool> _expandedFaqs = {};
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+  Map<String, dynamic>? _selectedGroup;
+  bool _showChat = false;
 
-  // Dummy departments
+  final Map<int, bool> _expandedFaqs = {};
+
+
+
+// FAQ Data
+final List<Map<String, String>> _faqs = [
+  {
+    "question": "How do I join a study group?",
+    "answer": "Tap the 'Join Group' button on any group card to become a member."
+  },
+  {
+    "question": "Can I create my own study group?",
+    "answer": "Yes! Tap the '+' button in the bottom right corner to create a new group."
+  },
+  {
+    "question": "What happens after I join a group?",
+    "answer": "You'll get access to the group chat, shared materials, and meeting schedule."
+  },
+  {
+    "question": "Are there rules for study groups?",
+    "answer": "Yes, all groups must follow our academic integrity and respect guidelines."
+  },
+  {
+    "question": "How do group meetings work?",
+    "answer": "Each group sets its own meeting schedule, which can be in-person or virtual."
+  },
+];
+
+  // Departments
   final List<String> _departments = [
     'All Departments',
     'Computer Science',
@@ -26,246 +58,332 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
     'Business Administration'
   ];
 
-  // Dummy study groups
+  // Study groups - one for each subject in each department
   final List<Map<String, dynamic>> _studyGroups = [
+    // Computer Science
     {
       'id': 1,
       'name': 'Data Structures Masters',
       'department': 'Computer Science',
       'subject': 'Data Structures',
+      'description': 'Master data structures concepts and implementations',
       'members': 24,
       'active': '5 online',
-      'image': 'https://img.freepik.com/free-vector/hand-drawn-data-structures-illustration_23-2149324218.jpg',
       'isJoined': false,
+      'messages': [],
+      'participants': ['Ali Hassan', 'Fatima Khan', 'Usman Malik', 'Ayesha Tariq']
     },
     {
       'id': 2,
       'name': 'Algorithm Study Circle',
       'department': 'Computer Science',
       'subject': 'Algorithms',
+      'description': 'Exploring advanced algorithms and problem-solving techniques',
       'members': 18,
       'active': '3 online',
-      'image': 'https://miro.medium.com/v2/resize:fit:1400/1*J7lWGZ2oKpAKUJOYXdS-ow.png',
-      'isJoined': true,
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Saad Ahmed', 'Zainab Ali', 'Omar Farooq', 'Maryam Nawaz']
     },
     {
       'id': 3,
+      'name': 'Database Systems Hub',
+      'department': 'Computer Science',
+      'subject': 'Database Systems',
+      'description': 'Learn SQL, database design and implementation',
+      'members': 15,
+      'active': '2 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Bilal Khan', 'Sara Malik', 'Hassan Ali', 'Aisha Ahmed']
+    },
+    // Software Engineering
+    {
+      'id': 4,
       'name': 'OOP Study Partners',
       'department': 'Software Engineering',
       'subject': 'Object Oriented Programming',
-      'members': 12,
-      'active': '2 online',
-      'image': 'https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190626123927/object-oriented-programming-concepts.jpg',
-      'isJoined': false,
-    },
-    {
-      'id': 4,
-      'name': 'Database Study Group',
-      'department': 'Computer Science',
-      'subject': 'Database Systems',
-      'members': 15,
+      'description': 'Master OOP concepts and design patterns',
+      'members': 22,
       'active': '4 online',
-      'image': 'https://www.boardinfinity.com/blog/content/images/2023/03/How-to-Learn-Data-Structures-and-Algorithms.png',
       'isJoined': false,
+      'messages': [],
+      'participants': ['Imran Khan', 'Nadia Hussain', 'Faisal Qureshi', 'Hina Pervaiz']
     },
     {
       'id': 5,
-      'name': 'Calculus Study Team',
-      'department': 'Mathematics',
-      'subject': 'Calculus II',
-      'members': 20,
-      'active': '6 online',
-      'image': 'https://www.simplilearn.com/ice9/free_resources_article_thumb/Data-Structures-and-Algorithms-Thumbnail.jpg',
-      'isJoined': true,
+      'name': 'Software Design Group',
+      'department': 'Software Engineering',
+      'subject': 'Software Design',
+      'description': 'Explore software architecture and design principles',
+      'members': 19,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Kamran Ahmed', 'Sana Javed', 'Tariq Jameel', 'Amna Baig']
     },
+    // Electrical Engineering
     {
       'id': 6,
+      'name': 'Circuit Analysis Team',
+      'department': 'Electrical Engineering',
+      'subject': 'Circuit Analysis',
+      'description': 'Analyze complex electrical circuits and systems',
+      'members': 17,
+      'active': '2 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Hamza Ali', 'Khadija Riaz', 'Adeel Khan', 'Rabia Malik']
+    },
+    {
+      'id': 7,
+      'name': 'Digital Logic Design',
+      'department': 'Electrical Engineering',
+      'subject': 'Digital Logic',
+      'description': 'Master combinational and sequential logic design',
+      'members': 14,
+      'active': '2 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Fahad Ahmed', 'Samina Khalid', 'Naveed Akram', 'Saima Shahid']
+    },
+    // Computer Engineering
+    {
+      'id': 8,
+      'name': 'Computer Architecture Group',
+      'department': 'Computer Engineering',
+      'subject': 'Computer Architecture',
+      'description': 'Understanding processor design and memory systems',
+      'members': 16,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Yasir Hussain', 'Madiha Khan', 'Umar Farooq', 'Sadia Ali']
+    },
+    {
+      'id': 9,
+      'name': 'Embedded Systems Club',
+      'department': 'Computer Engineering',
+      'subject': 'Embedded Systems',
+      'description': 'Design and program embedded controllers and IoT devices',
+      'members': 18,
+      'active': '4 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Asad Khan', 'Nadia Malik', 'Bilal Ahmed', 'Farah Siddiqui']
+    },
+    // Cyber Security
+    {
+      'id': 10,
       'name': 'Network Security Group',
       'department': 'Cyber Security',
       'subject': 'Network Security',
-      'members': 14,
-      'active': '3 online',
-      'image': 'https://www.interview.io/wp-content/uploads/2022/12/software-design-interview-questions.png',
+      'description': 'Learn network defense techniques and security protocols',
+      'members': 21,
+      'active': '5 online',
       'isJoined': false,
+      'messages': [],
+      'participants': ['Shoaib Akhtar', 'Ayesha Malik', 'Faizan Ahmed', 'Sana Mir']
+    },
+    {
+      'id': 11,
+      'name': 'Ethical Hacking Team',
+      'department': 'Cyber Security',
+      'subject': 'Ethical Hacking',
+      'description': 'Explore penetration testing and vulnerability assessment',
+      'members': 23,
+      'active': '6 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Ahmed Ali', 'Saira Khan', 'Kamran Akmal', 'Hira Mani']
+    },
+    // Data Science
+    {
+      'id': 12,
+      'name': 'Machine Learning Circle',
+      'department': 'Data Science',
+      'subject': 'Machine Learning',
+      'description': 'Master ML algorithms and deep learning techniques',
+      'members': 25,
+      'active': '4 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Zubair Khan', 'Aisha Siddiqi', 'Imran Hashmi', 'Farah Khan']
+    },
+    {
+      'id': 13,
+      'name': 'Data Mining Group',
+      'department': 'Data Science',
+      'subject': 'Data Mining',
+      'description': 'Techniques for extracting patterns from large datasets',
+      'members': 17,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Fawad Khan', 'Sadia Ahmed', 'Kashif Ali', 'Nadia Jamil']
+    },
+    // Mathematics
+    {
+      'id': 14,
+      'name': 'Calculus Study Team',
+      'department': 'Mathematics',
+      'subject': 'Calculus',
+      'description': 'Master differential and integral calculus',
+      'members': 20,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Hassan Malik', 'Amina Khan', 'Farhan Ahmed', 'Saima Ali']
+    },
+    {
+      'id': 15,
+      'name': 'Linear Algebra Group',
+      'department': 'Mathematics',
+      'subject': 'Linear Algebra',
+      'description': 'Study vector spaces, matrices and linear transformations',
+      'members': 16,
+      'active': '2 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Adnan Khan', 'Sana Ahmed', 'Kamran Ali', 'Faiza Malik']
+    },
+    // Physics
+    {
+      'id': 16,
+      'name': 'Mechanics Study Circle',
+      'department': 'Physics',
+      'subject': 'Mechanics',
+      'description': 'Understanding classical mechanics and kinematics',
+      'members': 14,
+      'active': '2 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Ali Abbas', 'Sadia Malik', 'Usman Ali', 'Hina Khan']
+    },
+    {
+      'id': 17,
+      'name': 'Quantum Physics Group',
+      'department': 'Physics',
+      'subject': 'Quantum Physics',
+      'description': 'Explore quantum mechanics and wave functions',
+      'members': 18,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Rizwan Ahmed', 'Nadia Ali', 'Faisal Khan', 'Amna Haider']
+    },
+    // Business Administration
+    {
+      'id': 18,
+      'name': 'Marketing Strategies',
+      'department': 'Business Administration',
+      'subject': 'Marketing',
+      'description': 'Exploring effective marketing strategies and campaigns',
+      'members': 22,
+      'active': '4 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Saad Malik', 'Zara Ahmed', 'Omar Ali', 'Maria Khan']
+    },
+    {
+      'id': 19,
+      'name': 'Finance Study Hub',
+      'department': 'Business Administration',
+      'subject': 'Finance',
+      'description': 'Learn financial management and investment strategies',
+      'members': 19,
+      'active': '3 online',
+      'isJoined': false,
+      'messages': [],
+      'participants': ['Asif Ali', 'Sana Tariq', 'Nasir Khan', 'Ayesha Fahad']
     },
   ];
 
-  // FAQ Data
-  final List<Map<String, String>> _faqs = [
-    {
-      "question": "How do I join a study group?",
-      "answer": "Tap the 'Join Group' button on any group card to become a member."
-    },
-    {
-      "question": "Can I create my own study group?",
-      "answer": "Yes! Tap the '+' button in the bottom right corner to create a new group."
-    },
-    {
-      "question": "What happens after I join a group?",
-      "answer": "You'll get access to the group chat, shared materials, and meeting schedule."
-    },
-    {
-      "question": "Are there rules for study groups?",
-      "answer": "Yes, all groups must follow our academic integrity and respect guidelines."
-    },
-    {
-      "question": "How do group meetings work?",
-      "answer": "Each group sets its own meeting schedule, which can be in-person or virtual."
-    },
-  ];
+  // Filtered groups based on search and department
+  List<Map<String, dynamic>> get filteredGroups {
+    if (_searchController.text.isEmpty) {
+      return _selectedDepartment == null || _selectedDepartment == 'All Departments'
+          ? _studyGroups
+          : _studyGroups.where((group) => group['department'] == _selectedDepartment).toList();
+    } else {
+      final query = _searchController.text.toLowerCase();
+      return _studyGroups
+          .where((group) =>
+      ((_selectedDepartment == null || _selectedDepartment == 'All Departments' ||
+          group['department'] == _selectedDepartment)) &&
+          (group['name'].toLowerCase().contains(query) ||
+              group['subject'].toLowerCase().contains(query) ||
+              group['department'].toLowerCase().contains(query)))
+          .toList();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Filter groups by selected department
-    final filteredGroups = _selectedDepartment == null || _selectedDepartment == 'All Departments'
-        ? _studyGroups
-        : _studyGroups.where((group) => group['department'] == _selectedDepartment).toList();
-
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.blueAccent),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            if (_showChat) {
+              setState(() {
+                _showChat = false;
+                _selectedGroup = null;
+              });
+            } else {
+              Navigator.pop(context);
+            }
+          },
         ),
-        title: const Text(
-          "Study Groups",
-          style: TextStyle(
-            color: Colors.blueAccent,
-            fontWeight: FontWeight.bold,
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+        title: Text(
+          _showChat ? _selectedGroup!['name'] : "Study Groups",
+          style: GoogleFonts.poppins(
             fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        centerTitle: true,
-        actions: [
+        actions: _showChat
+            ? [
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.blueAccent, size: 26),
-            onPressed: () {},
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            onPressed: () {
+              _showGroupInfo(_selectedGroup!);
+            },
           ),
-        ],
+        ]
+            : null,
       ),
-      body: SingleChildScrollView(
+      body: _showChat
+          ? _buildChatInterface()
+          : SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             // Hero Section
-            _buildHeroSection(),
+_buildHeroSection(),
+
+            _buildGroupFeatures(),
 
             // Search and Filter
             _buildFilterSection(),
 
-            // Featured Groups
-            _buildFeaturedGroups(),
 
             // All Groups
             _buildGroupsList(filteredGroups),
 
-            // FAQ Section
-            _buildFaqSection(),
-
-            // Footer
-            _buildFooter(),
+            // // FAQ Section
+_buildFaqSection(),
+//
+// // Footer
+_buildFooter(context),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Handle new group creation
-        },
-        backgroundColor: Colors.blueAccent,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildHeroSection() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.blueAccent.shade400,
-            Colors.blueAccent.shade200,
-          ],
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: 20,
-            bottom: 20,
-            child: Opacity(
-              opacity: 0.1,
-              child: Icon(Icons.group, size: 150, color: Colors.white),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Collaborative Learning",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Join subject-specific groups to study with peers",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.people_alt_outlined, color: Colors.white, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        "${_studyGroups.length} active groups",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -300,6 +418,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 15),
+              hintStyle: GoogleFonts.poppins(fontSize: 14),
             ),
             onChanged: (value) {
               setState(() {});
@@ -313,8 +432,10 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
             child: Text(
               "Filter by department:",
               style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+                fontFamily: 'Poppins',
               ),
             ),
           ),
@@ -326,7 +447,10 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
-                    label: Text(department),
+                    label: Text(
+                      department,
+                      style: GoogleFonts.poppins(fontSize: 14),
+                    ),
                     selected: _selectedDepartment == department,
                     onSelected: (selected) {
                       setState(() {
@@ -356,118 +480,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
     );
   }
 
-  Widget _buildFeaturedGroups() {
-    final featuredGroups = _studyGroups.where((group) => group['members'] > 15).toList();
 
-    if (featuredGroups.isEmpty) return const SizedBox();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Featured Groups",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
-            ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            height: 180,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: featuredGroups.length,
-              itemBuilder: (context, index) {
-                final group = featuredGroups[index];
-                return _buildFeaturedGroupCard(group);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeaturedGroupCard(Map<String, dynamic> group) {
-    return Container(
-      width: 160,
-      margin: const EdgeInsets.only(right: 15),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(15),
-          onTap: () {
-            // Navigate to group detail
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Group Image
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                child: Image.network(
-                  group['image'],
-                  height: 90,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    height: 90,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.group, color: Colors.grey),
-                  ),
-                ),
-              ),
-              // Group Info
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      group['name'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      group['subject'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.people_outline, size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Text(
-                          "${group['members']} members",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildGroupsList(List<Map<String, dynamic>> groups) {
     if (groups.isEmpty) {
@@ -497,6 +510,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
+                fontFamily: 'Poppins',
               ),
             ),
           ],
@@ -517,6 +531,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.blueAccent,
+                fontFamily: 'Poppins',
               ),
             ),
           ),
@@ -544,7 +559,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          // Navigate to group detail
+          _viewGroupDetails(group);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -553,8 +568,8 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
               // Group Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  group['image'],
+                child: Image.asset(
+                  'image/logo.png',
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
@@ -576,14 +591,27 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                       group['name'],
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      group['description'],
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                        fontFamily: 'Poppins',
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       "${group['department']} • ${group['subject']}",
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         color: Colors.grey[600],
+                        fontFamily: 'Poppins',
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -596,6 +624,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[600],
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         const SizedBox(width: 15),
@@ -606,6 +635,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[600],
+                            fontFamily: 'Poppins',
                           ),
                         ),
                       ],
@@ -620,6 +650,16 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                   onPressed: () {
                     setState(() {
                       group['isJoined'] = !group['isJoined'];
+
+                      // If joining, generate some sample messages
+                      if (group['isJoined'] && (group['messages'] == null || group['messages'].isEmpty)) {
+                        _generateSampleMessages(group);
+                      }
+
+                      // Open chat if joining
+                      if (group['isJoined']) {
+                        _openGroupChat(group);
+                      }
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -632,7 +672,7 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
                   ),
                   child: Text(
                     group['isJoined'] ? "Joined" : "Join",
-                    style: const TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14, fontFamily: 'Poppins'),
                   ),
                 ),
               ),
@@ -643,118 +683,1114 @@ class _StudyGroupsScreenState extends State<StudyGroupsScreen> {
     );
   }
 
-  Widget _buildFaqSection() {
+  void _viewGroupDetails(Map<String, dynamic> group) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: Colors.white,
+        ),
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+        Row(
+        children: [
+        ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.asset(
+          'image/logo.png',
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: 60,
+            height: 60,
+            color: Colors.grey[200],
+            child: const Icon(Icons.group, color: Colors.grey),
+          ),
+        ),
+      ),
+      const SizedBox(width: 15),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              group['name'],
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            Text(
+              "${group['department']} • ${group['subject']}",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ],
+        ),
+      ),
+      ],
+    ),
+    const SizedBox(height: 15),
+    Text(
+    "Description",
+    style: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.blueAccent,
+    fontFamily: 'Poppins',
+    ),
+    ),
+    const SizedBox(height: 5),
+    Text(
+    group['description'],
+    style: TextStyle(
+    fontSize: 14,
+    color: Colors.grey[800],
+    fontFamily: 'Poppins',
+    ),
+    ),
+    const SizedBox(height: 15),
+    Row(
+    children: [
+    Expanded(
+    child: Column(
+    children: [
+    Text(
+    "${group['members']}",
+    style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.grey[800],
+    fontFamily: 'Poppins',
+    ),
+    ),
+    Text(
+    "Members",
+    style: TextStyle(
+    fontSize: 14,
+    color: Colors.grey[600],
+    fontFamily: 'Poppins',
+    ),
+    ),
+    ],
+    ),
+    ),
+    Expanded(
+    child: Column(
+    children: [
+    Text(
+    group['active'].split(' ')[0],
+    style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.green,
+    fontFamily: 'Poppins',
+    ),
+    ),
+    Text(
+    "Online",
+    style: TextStyle(
+    fontSize: 14,
+    color: Colors.grey[600],
+    fontFamily: 'Poppins',
+    ),
+    ),
+    ],
+    ),
+    ),
+    ],
+    ),
+    const SizedBox(height: 30),
+    Center(
+    child: SizedBox(
+    width: 200,
+    child: ElevatedButton(
+    onPressed: () {
+    Navigator.pop(context);
+    setState(() {
+    if (!group['isJoined']) {
+    group['isJoined'] = true;
+    _generateSampleMessages(group);
+    }
+    _openGroupChat(group);
+    });
+    },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: group['isJoined'] ? Colors.grey[200] : Colors.blueAccent,
+        foregroundColor: group['isJoined'] ? Colors.grey[800] : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+      ),
+      child: Text(
+        group['isJoined'] ? "Open Chat" : "Join Group",
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    ),
+    ),
+    ),
+              const SizedBox(height: 20),
+            ],
+        ),
+      ),
+    );
+  }
+
+  void _openGroupChat(Map<String, dynamic> group) {
+    setState(() {
+      _selectedGroup = group;
+      _showChat = true;
+    });
+  }
+
+  void _generateSampleMessages(Map<String, dynamic> group) {
+    final List<String> participants = List<String>.from(group['participants']);
+
+    // Add sample messages
+    group['messages'] = [
+      {
+        'sender': participants[0],
+        'message': 'Hello everyone! Welcome to the ${group['name']} group!',
+        'time': DateTime.now().subtract(const Duration(days: 2, hours: 3)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[1],
+        'message': 'Thanks for creating this group. I\'m excited to learn together!',
+        'time': DateTime.now().subtract(const Duration(days: 2, hours: 2, minutes: 45)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[2],
+        'message': 'Hi all! Looking forward to our study sessions.',
+        'time': DateTime.now().subtract(const Duration(days: 2, hours: 2, minutes: 30)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[0],
+        'message': 'Let\'s schedule our first online meeting. How about Friday at 5 PM?',
+        'time': DateTime.now().subtract(const Duration(days: 1, hours: 7)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[3],
+        'message': 'Friday works for me!',
+        'time': DateTime.now().subtract(const Duration(days: 1, hours: 6, minutes: 30)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[1],
+        'message': 'Could we make it 6 PM instead? I have a class until 5:30.',
+        'time': DateTime.now().subtract(const Duration(days: 1, hours: 6)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[0],
+        'message': 'Sure, 6 PM it is then!',
+        'time': DateTime.now().subtract(const Duration(days: 1, hours: 5, minutes: 45)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[2],
+        'message': 'I\'ll prepare some notes on the recent topics we covered in class.',
+        'time': DateTime.now().subtract(const Duration(hours: 12)),
+        'isRead': true,
+      },
+      {
+        'sender': participants[3],
+        'message': 'Great! I\'ll bring my questions about the last assignment.',
+        'time': DateTime.now().subtract(const Duration(hours: 6)),
+        'isRead': true,
+      },
+    ];
+  }
+
+  Widget _buildChatInterface() {
+    final messages = _selectedGroup!['messages'] ?? [];
+    final currentUser = "You"; // Assuming the current user's name
+
+    return Column(
+      children: [
+        // Messages
+        Expanded(
+          child: messages.isEmpty
+              ? _buildEmptyChatState()
+              : ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: messages.length,
+            reverse: false,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              final bool isSentByMe = message['sender'] == currentUser;
+
+              return _buildMessageBubble(message, isSentByMe);
+            },
+          ),
+        ),
+
+        // Message Input
+        _buildMessageInput(),
+      ],
+    );
+  }
+
+  // // ===== FAQ Section =====
+Widget _buildFaqSection() {
+return Padding(
+padding: const EdgeInsets.symmetric(horizontal: 20),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+children: [
+Text(
+"Frequently Asked Questions",
+style: GoogleFonts.poppins(
+fontSize: 22,
+fontWeight: FontWeight.bold,
+color: Colors.blueAccent,
+),
+),
+const SizedBox(height: 20),
+..._faqs.asMap().entries.map((entry) {
+final index = entry.key;
+final faq = entry.value;
+return Card(
+elevation: 1,
+margin: const EdgeInsets.only(bottom: 12),
+shape: RoundedRectangleBorder(
+borderRadius: BorderRadius.circular(10),
+),
+child: ExpansionTile(
+title: Text(
+faq["question"]!,
+style: GoogleFonts.poppins(
+fontSize: 15,
+fontWeight: FontWeight.w500,
+color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.black87,
+),
+),
+leading: Icon(
+Icons.help_outline,
+color: _expandedFaqs[index] ?? false ? Colors.blueAccent : Colors.grey,
+),
+children: [
+Padding(
+padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+child: Text(
+faq["answer"]!,
+style: GoogleFonts.poppins(
+fontSize: 14,
+color: Colors.grey[700],
+height: 1.5,
+),
+),
+)
+],
+initiallyExpanded: _expandedFaqs[index] ?? false,
+onExpansionChanged: (expanded) {
+setState(() {
+_expandedFaqs[index] = expanded;
+});
+},
+),
+);
+}),
+],
+),
+);
+}
+
+// // ===== Footer =====
+Widget _buildFooter(BuildContext context) {
+return Container(
+width: double.infinity,
+padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+color: Colors.blueAccent.withOpacity(0.05),
+child: Column(
+children: [
+Text(
+"Study Mates",
+style: GoogleFonts.poppins(
+fontSize: 20,
+fontWeight: FontWeight.w600,
+color: Colors.blueAccent,
+),
+),
+const SizedBox(height: 8),
+Text(
+"© 2025 COMSATS University Islamabad, Sahiwal Campus",
+textAlign: TextAlign.center,
+style: GoogleFonts.poppins(
+fontSize: 12,
+color: Colors.grey[600],
+),
+),
+],
+),
+);
+}
+
+
+
+
+
+  Widget _buildGroupFeatures() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      margin: const EdgeInsets.only(top: 24, bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Forum FAQs",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
-            ),
+          Row(
+            children: [
+              const Icon(Icons.groups_rounded, color: Colors.indigo, size: 28),
+              const SizedBox(width: 10),
+              Text(
+                "Why Join Study Groups?",
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.indigo[800],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 15),
-          ..._faqs.asMap().entries.map((entry) {
-            final index = entry.key;
-            final faq = entry.value;
-            return Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(
-                  color: Colors.grey[200]!,
-                  width: 1,
-                ),
+          const SizedBox(height: 28),
+          Column(
+            children: [
+              _buildGroupFeatureItem(
+                Icons.forum_rounded,
+                "Collaborative Discussions",
+                "Engage in topic-wise group chats to clear doubts and learn with peers.",
+                Colors.blueAccent,
               ),
-              child: ExpansionTile(
-                initiallyExpanded: _expandedFaqs[index] ?? false,
-                onExpansionChanged: (expanded) {
-                  setState(() {
-                    _expandedFaqs[index] = expanded;
-                  });
-                },
-                leading: Icon(
-                  Icons.help_outline,
-                  color: _expandedFaqs[index] ?? false
-                      ? Colors.blueAccent
-                      : Colors.grey,
-                ),
-                title: Text(
-                  faq["question"]!,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: _expandedFaqs[index] ?? false
-                        ? Colors.blueAccent
-                        : Colors.grey[800],
-                  ),
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                    child: Text(
-                      faq["answer"]!,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+              _buildGroupFeatureItem(
+                Icons.attach_file_rounded,
+                "File Sharing",
+                "Easily share notes, assignments, and important material within the group.",
+                Colors.deepPurpleAccent,
               ),
-            );
-          }).toList(),
+              _buildGroupFeatureItem(
+                Icons.emoji_events_rounded,
+                "Peer Learning",
+                "Learn from high-performing students and share your own insights.",
+                Colors.green,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildGroupFeatureItem(IconData icon, String title, String description, Color iconColor) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      margin: const EdgeInsets.only(top: 30),
-      color: Colors.blueAccent.withOpacity(0.1),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, size: 22, color: iconColor),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+
+
+  Widget _buildHeroSection() {
+return Container(
+height: 240,
+width: double.infinity,
+decoration: BoxDecoration(
+color: Colors.blueAccent,
+borderRadius: const BorderRadius.only(
+bottomLeft: Radius.circular(30),
+bottomRight: Radius.circular(30),
+),
+boxShadow: [
+BoxShadow(
+color: Colors.blueAccent.withOpacity(0.25),
+blurRadius: 20,
+offset: const Offset(0, 8),
+),
+],
+),
+child: Stack(
+children: [
+Positioned(
+right: -30,
+bottom: -20,
+child: Opacity(
+opacity: 0.08,
+child: Icon(Icons.group, size: 220, color: Colors.white),
+),
+),
+Padding(
+padding: const EdgeInsets.all(25),
+child: Column(
+crossAxisAlignment: CrossAxisAlignment.start,
+mainAxisAlignment: MainAxisAlignment.center,
+children: [
+Text(
+"Join Study Groups",
+style: GoogleFonts.poppins(
+fontSize: 28,
+fontWeight: FontWeight.w600,
+color: Colors.white,
+height: 1.3,
+),
+),
+const SizedBox(height: 10),
+Text(
+"Collaborate with peers, share resources, and discuss subjects.",
+style: GoogleFonts.poppins(
+fontSize: 16,
+color: Colors.white.withOpacity(0.9),
+),
+),
+const SizedBox(height: 16),
+Container(
+padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+decoration: BoxDecoration(
+color: Colors.white.withOpacity(0.18),
+borderRadius: BorderRadius.circular(25),
+border: Border.all(color: Colors.white.withOpacity(0.3)),
+),
+child: Row(
+mainAxisSize: MainAxisSize.min,
+children: [
+const Icon(Icons.group_add, color: Colors.white, size: 20),
+const SizedBox(width: 8),
+Text(
+"200+ active groups available",
+style: GoogleFonts.poppins(
+fontSize: 14,
+color: Colors.white,
+fontWeight: FontWeight.w500,
+),
+),
+],
+),
+),
+],
+),
+),
+],
+),
+);
+}
+
+
+  Widget _buildEmptyChatState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 20),
           Text(
-            "Study Mates",
+            "No messages yet",
             style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              color: Colors.blueAccent,
-              letterSpacing: 1.2,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              fontFamily: 'Poppins',
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            "© 2025 COMSATS University Islamabad, Sahiwal Campus",
+            "Be the first to start the conversation!",
             style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey.shade700,
+              fontSize: 14,
+              color: Colors.grey[500],
+              fontFamily: 'Poppins',
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMessageBubble(Map<String, dynamic> message, bool isSentByMe) {
+    final time = message['time'] as DateTime;
+    final formattedTime = "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: isSentByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isSentByMe) ...[
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: _getAvatarColor(message['sender']),
+              child: Text(
+                message['sender'][0].toUpperCase(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSentByMe ? Colors.blueAccent : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!isSentByMe)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        message['sender'],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: _getAvatarColor(message['sender']),
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  Text(
+                    message['message'],
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSentByMe ? Colors.white : Colors.black87,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      formattedTime,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: isSentByMe ? Colors.white.withOpacity(0.7) : Colors.grey[500],
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          if (isSentByMe) ...[
+            const SizedBox(width: 8),
+            const CircleAvatar(
+              radius: 16,
+              backgroundColor: Colors.blueAccent,
+              child: Text(
+                "Y",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _getAvatarColor(String name) {
+    final colors = [
+      Colors.redAccent,
+      Colors.green,
+      Colors.purple,
+      Colors.orange,
+      Colors.teal,
+      Colors.pinkAccent,
+    ];
+
+    // Create a consistent color for each name
+    final index = name.codeUnits.fold(0, (prev, current) => prev + current) % colors.length;
+    return colors[index];
+  }
+
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.attach_file, color: Colors.grey),
+            onPressed: () {
+              _showAttachmentOptions();
+            },
+          ),
+          Expanded(
+            child: TextField(
+              controller: _messageController,
+              decoration: InputDecoration(
+                hintText: "Type a message...",
+                hintStyle: TextStyle(
+                  color: Colors.grey[500],
+                  fontFamily: 'Poppins',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              maxLines: null,
+              textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: () {
+              _sendMessage();
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Colors.blueAccent,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.send,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _sendMessage() {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final message = {
+      'sender': 'You',
+      'message': _messageController.text.trim(),
+      'time': DateTime.now(),
+      'isRead': false,
+    };
+
+    setState(() {
+      if (_selectedGroup!['messages'] == null) {
+        _selectedGroup!['messages'] = [];
+      }
+      _selectedGroup!['messages'].add(message);
+      _messageController.clear();
+    });
+  }
+
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Share attachment",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildAttachmentOption(Icons.photo, "Gallery", Colors.purple),
+                _buildAttachmentOption(Icons.camera_alt, "Camera", Colors.pink),
+                _buildAttachmentOption(Icons.insert_drive_file, "Document", Colors.blue),
+                _buildAttachmentOption(Icons.location_on, "Location", Colors.green),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAttachmentOption(IconData icon, String label, Color color) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+        // Implement the attachment functionality
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$label attachment selected'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      },
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 25,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showGroupInfo(Map<String, dynamic> group) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Group Header
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'image/logo.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.group, color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        group['name'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                      Text(
+                        "${group['department']} • ${group['subject']}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Description
+            const Text(
+              "Description",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              group['description'],
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[800],
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Stats
+            Row(
+              children: [
+                _buildStatCard("Members", "${group['members']}", Icons.people),
+                const SizedBox(width: 10),
+                _buildStatCard("Online", group['active'].split(' ')[0], Icons.circle, Colors.green),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Participants
+            const Text(
+              "Participants",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Participants List
+            Expanded(
+              child: ListView.builder(
+                itemCount: group['participants'].length + 1, // +1 for the current user
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _buildParticipantTile("You", true);
+                  } else {
+                    return _buildParticipantTile(group['participants'][index - 1], false);
+                  }
+                },
+              ),
+            ),
+
+            // Leave Group Button
+            Center(
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    group['isJoined'] = false;
+                    _showChat = false;
+                    _selectedGroup = null;
+                  });
+                },
+                icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                label: const Text(
+                  "Leave Group",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon, [Color? iconColor]) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: iconColor ?? Colors.blueAccent,
+              size: 24,
+            ),
+            const SizedBox(width: 15),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParticipantTile(String name, bool isCurrentUser) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: isCurrentUser ? Colors.blueAccent : _getAvatarColor(name),
+        child: Text(
+          name[0].toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      ),
+      title: Text(
+        name,
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Poppins',
+        ),
+      ),
+      subtitle: Text(
+        isCurrentUser ? "You" : "Member",
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[600],
+          fontFamily: 'Poppins',
+        ),
+      ),
+      trailing: isCurrentUser
+          ? const Chip(
+        backgroundColor: Colors.blue,
+        label: Text(
+          "Admin",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontFamily: 'Poppins',
+          ),
+        ),
+      )
+          : null,
     );
   }
 }
