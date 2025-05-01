@@ -14,6 +14,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen width to make it responsive
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -25,7 +28,10 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: screenWidth * 0.08, // Making padding responsive
+            vertical: 20,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -59,6 +65,13 @@ class _LoginPageState extends State<LoginPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
+                    // Email regex validation
+                    String emailPattern =
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+                    RegExp regex = RegExp(emailPattern);
+                    if (!regex.hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
                     return null;
                   },
                 ),
@@ -88,6 +101,16 @@ class _LoginPageState extends State<LoginPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters long';
+                    }
+                    // Password complexity check (at least one digit, one letter, and one special character)
+                    String passwordPattern =
+                        r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$';
+                    RegExp regex = RegExp(passwordPattern);
+                    if (!regex.hasMatch(value)) {
+                      return 'Password must contain at least one letter, one digit, and one special character';
+                    }
                     return null;
                   },
                 ),
@@ -96,7 +119,9 @@ class _LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () { Navigator.pushNamed(context, '/forget-password');},
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/forget-password');
+                    },
                     child: Text(
                       "Forgot Password?",
                       style: GoogleFonts.poppins(

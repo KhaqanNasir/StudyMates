@@ -47,7 +47,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     return _otpControllers.map((controller) => controller.text).join();
   }
 
+  // OTP Field Validator
+  String? _validateOtp(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter OTP';
+    }
+    if (value.length != 1) {
+      return 'OTP should be a single digit';
+    }
+    return null;
+  }
+
   void _verifyOtp() {
+    // Ensure all OTP fields are filled
     if (_formKey.currentState!.validate()) {
       // Here you would validate the OTP code with your backend
       // For now, we'll just show a success message and navigate
@@ -127,12 +139,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           LengthLimitingTextInputFormatter(1),
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          }
-                          return null;
-                        },
+                        validator: _validateOtp,  // Apply OTP validator
                         onChanged: (value) {
                           if (value.isNotEmpty) {
                             // Move to next field

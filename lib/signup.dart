@@ -18,9 +18,11 @@ class _SignUpPageState extends State<SignUpPage> {
     'Computer Science',
     'Software Engineering',
     'Electrical Engineering',
+    'Civil Engineering',
+    'Mechanical Engineering',
     'Business Administration',
     'Mathematics',
-    'Physics',
+    'Food Sciences & Nutritions',
   ];
 
   @override
@@ -85,6 +87,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
+                    // Email regex validation
+                    String emailPattern =
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+                    RegExp regex = RegExp(emailPattern);
+                    if (!regex.hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
                     return null;
                   },
                 ),
@@ -144,6 +153,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     if (value.length < 6) {
                       return 'Password must be at least 6 characters';
                     }
+                    // Password complexity check (at least one letter, one digit, and one special character)
+                    String passwordPattern =
+                        r'^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$';
+                    RegExp regex = RegExp(passwordPattern);
+                    if (!regex.hasMatch(value)) {
+                      return 'Password must contain at least one letter, one digit, and one special character';
+                    }
                     return null;
                   },
                 ),
@@ -180,7 +196,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate() && _agreeToTerms) {
-                        Navigator.pushReplacementNamed(context, '/home');
+                        Navigator.pushReplacementNamed(context, '/login');
                       } else if (!_agreeToTerms) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -190,12 +206,12 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                     },
                     child: Text(
-                    "Sign Up",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      "Sign Up",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
                   ),
                 ),
                 const SizedBox(height: 30),

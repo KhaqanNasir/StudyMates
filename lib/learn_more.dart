@@ -11,9 +11,7 @@ class LearnMorePage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
@@ -40,21 +38,17 @@ class LearnMorePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-
             _buildCard(
               title: "About COMSATS Sahiwal",
               content:
-              "COMSATS University Islamabad, Sahiwal Campus is a place of learning, innovation, and growth. With a mission to provide quality education and foster research, the campus offers state-of-the-art facilities and a vibrant student life.",
+              "COMSATS University Islamabad, Sahiwal Campus, established in 2006, is strategically located halfway between Lahore and Multan on COMSATS Road off G.T. Road, Sahiwal. Spanning 36 acres, the campus offers state-of-the-art facilities and a vibrant academic environment. With 214 faculty members, including 66 PhD holders, it offers 23 programs and has enrolled 3,675 students to date.",
             ),
-
             _buildCard(
               title: "About Study Mates",
               content:
-              "Study Mates is your academic companion, designed to help COMSATS students manage their studies effectively. From class schedules to resources, everything you need is just a tap away.",
+              "Study Mates is your academic companion, designed to assist COMSATS students in managing their studies effectively. From class schedules to resources, everything you need is just a tap away.",
             ),
-
             _buildContactCard(),
-
             const SizedBox(height: 20),
             _buildFooter(context),
           ],
@@ -122,12 +116,14 @@ class LearnMorePage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _contactRow(Icons.email, "support@studymates.com"),
+          _contactRow(Icons.email, "Info@cuisahiwal.edu.pk"),
           const SizedBox(height: 10),
-          _contactRow(Icons.phone, "+92 300 1234567"),
+          _contactRow(Icons.phone, "+92-40-4305001-4305002"),
+          const SizedBox(height: 10),
+          _contactRow(Icons.phone_android, "+92-333-690-8100"),
           const SizedBox(height: 10),
           _contactRow(Icons.location_on,
-              "COMSATS University, Sahiwal Campus, G.T Road, Sahiwal, Pakistan"),
+              "COMSATS Road, Off G.T. Road, Sahiwal, Pakistan"),
         ],
       ),
     );
@@ -149,7 +145,7 @@ class LearnMorePage extends StatelessWidget {
     );
   }
 
-  // ===== Footer =====
+
   Widget _buildFooter(BuildContext context) {
     return Container(
       width: double.infinity,

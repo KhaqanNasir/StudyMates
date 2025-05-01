@@ -18,6 +18,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     super.dispose();
   }
 
+  // Email validation function
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    // Basic email validation
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,16 +75,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     labelStyle: GoogleFonts.poppins(),
                     prefixIcon: const Icon(Icons.email, color: Colors.blueAccent),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    // Basic email validation
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                      return 'Please enter a valid email address';
-                    }
-                    return null;
-                  },
+                  validator: _validateEmail,  // Apply custom email validation here
                 ),
                 const SizedBox(height: 40),
                 // Send Recovery Code Button
