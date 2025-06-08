@@ -6,8 +6,8 @@ class PastPaper {
   final String subject;
   final String teacher;
   final String year;
-  final String examType;
-  final String pdfUrl;
+  final String? examType;
+  final String description;
   final String uploadedBy;
   final Timestamp createdAt;
 
@@ -17,8 +17,8 @@ class PastPaper {
     required this.subject,
     required this.teacher,
     required this.year,
-    required this.examType,
-    required this.pdfUrl,
+    this.examType,
+    required this.description,
     required this.uploadedBy,
     required this.createdAt,
   });
@@ -30,8 +30,8 @@ class PastPaper {
       subject: data['subject'] ?? '',
       teacher: data['teacher'] ?? '',
       year: data['year'] ?? '',
-      examType: data['examType'] ?? '',
-      pdfUrl: data['pdfUrl'] ?? '',
+      examType: data['examType'],
+      description: data['description'] ?? '',
       uploadedBy: data['uploadedBy'] ?? '',
       createdAt: data['createdAt'] ?? Timestamp.now(),
     );
@@ -44,7 +44,7 @@ class PastPaper {
       'teacher': teacher,
       'year': year,
       'examType': examType,
-      'pdfUrl': pdfUrl,
+      'description': description,
       'uploadedBy': uploadedBy,
       'createdAt': createdAt,
     };

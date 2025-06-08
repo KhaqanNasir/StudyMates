@@ -18,20 +18,24 @@ import 'setting.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (kIsWeb) {
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyDSXHCTgBmMWRcky2iO7PUksrz6xNc1hCs",
-        authDomain: "study-mates-6f666.firebaseapp.com",
-        projectId: "study-mates-6f666",
-        storageBucket: "study-mates-6f666.firebasestorage.app",
-        messagingSenderId: "96286627682",
-        appId: "1:96286627682:web:4f2bbd1df6bc91f0607e3b",
-        measurementId: "G-219M0NWBBK",
-      ),
-    );
-  } else {
-    await Firebase.initializeApp();
+  try {
+    if (kIsWeb) {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: "AIzaSyDSXHCTgBmMWRcky2iO7PUksrz6xNc1hCs",
+          authDomain: "study-mates-6f666.firebaseapp.com",
+          projectId: "study-mates-6f666",
+          storageBucket: "study-mates-6f666.firebasestorage.app",
+          messagingSenderId: "96286627682",
+          appId: "1:96286627682:web:4f2bbd1df6bc91f0607e3b",
+          measurementId: "G-219M0NWBBK",
+        ),
+      );
+    } else {
+      await Firebase.initializeApp();
+    }
+  } catch (e) {
+    print('Firebase initialization failed: $e');
   }
   runApp(const MyApp());
 }
