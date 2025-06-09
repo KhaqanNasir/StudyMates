@@ -7,12 +7,12 @@ import 'view/signup_screen.dart';
 import 'view/forget_screen.dart';
 import 'view/otp_screen.dart';
 import 'view/reset_password_screen.dart';
+import 'view/study_groups_screen.dart';
 import 'home.dart';
 import 'view/past_paper_screen.dart';
 import 'learn_more.dart';
 import 'study_materials.dart';
 import 'discussion.dart';
-import 'study_groups.dart';
 import 'splash_screen.dart';
 import 'setting.dart';
 

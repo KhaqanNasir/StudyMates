@@ -621,34 +621,99 @@ height: 1.4,
 );
 }
 
-Widget _buildFooter(BuildContext context) {
-return Container(
-width: double.infinity,
-padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-color: Colors.blueAccent.withOpacity(0.05),
-child: Column(
-children: [
-Text(
-"Study Mates",
-style: GoogleFonts.poppins(
-fontSize: 20,
-fontWeight: FontWeight.w600,
-color: Colors.blueAccent,
-),
-),
-const SizedBox(height: 8),
-Text(
-"© 2025 COMSATS University Islamabad, Sahiwal Campus",
-textAlign: TextAlign.center,
-style: GoogleFonts.poppins(
-fontSize: 12,
-color: Colors.grey[600],
-),
-),
-],
-),
-);
-}
+  Widget _buildFooter(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        color: Colors.blueAccent.withOpacity(0.08),
+      ),
+      child: Column(
+        children: [
+          // Main footer content
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Column(
+              children: [
+                // App logo/title
+                Column(
+                  children: [
+                    Icon(
+                      Icons.school,
+                      size: 40,
+                      color: Colors.blueAccent,
+                    ),
+                    Text(
+                      "Study Mates",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blueAccent,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Copyright text
+                Text(
+                  "© 2025 COMSATS University Islamabad, Sahiwal Campus",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Developer credit section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.blueAccent.withOpacity(0.12),
+              border: Border(
+                top: BorderSide(
+                  color: Colors.blueAccent.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Developed by ",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  "Muhammad Khaqan Nasir",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.favorite,
+                  color: Colors.red.shade400,
+                  size: 14,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class UploadPaperScreen extends StatefulWidget {
