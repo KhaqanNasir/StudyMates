@@ -18,6 +18,7 @@ class StudyGroupsViewModel extends ChangeNotifier {
   String? get selectedDepartment => _selectedDepartment;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  FirestoreService get firestoreService => _firestoreService;
 
   void setSearchQuery(String query) {
     _searchQuery = query.toLowerCase();
@@ -31,14 +32,19 @@ class StudyGroupsViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchStudyGroups() async {
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;
       notifyListeners();
       _errorMessage = null;
 
-      _studyGroups = await _firestoreService.getStudyGroups(_selectedDepartment);
+      final groups = await _firestoreService.getStudyGroups(_selectedDepartment);
+      final uniqueGroups = <String, StudyGroup>{};
+      for (var group in groups) {
+        uniqueGroups[group.id] = group;
+      }
+      _studyGroups = uniqueGroups.values.toList();
       _filterStudyGroups();
     } catch (e) {
       _errorMessage = e.toString();
@@ -59,15 +65,20 @@ class StudyGroupsViewModel extends ChangeNotifier {
   }
 
   Future<void> joinGroup(String groupId) async {
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;
       notifyListeners();
       _errorMessage = null;
 
+      final currentUserName = await _getCurrentUserName();
       await _firestoreService.joinGroup(groupId);
       await fetchStudyGroups();
+      final updatedGroup = _studyGroups.firstWhere((g) => g.id == groupId);
+      if (!updatedGroup.participants.contains(currentUserName)) {
+        updatedGroup.participants.add(currentUserName);
+      }
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -77,21 +88,32 @@ class StudyGroupsViewModel extends ChangeNotifier {
   }
 
   Future<void> leaveGroup(String groupId) async {
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;
       notifyListeners();
       _errorMessage = null;
 
+      final currentUserName = await _getCurrentUserName();
       await _firestoreService.leaveGroup(groupId);
       await fetchStudyGroups();
+      final updatedGroup = _studyGroups.firstWhere((g) => g.id == groupId, orElse: () => _selectedGroup!);
+      updatedGroup.participants.remove(currentUserName);
+      if (_selectedGroup?.id == groupId) {
+        _selectedGroup = null;
+      }
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<String> _getCurrentUserName() async {
+    final userData = await _firestoreService.getCurrentUserData();
+    return userData?['fullName'] ?? 'Unknown';
   }
 
   void selectGroup(StudyGroup group) {
@@ -111,7 +133,7 @@ class StudyGroupsViewModel extends ChangeNotifier {
       return;
     }
 
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;
@@ -128,7 +150,7 @@ class StudyGroupsViewModel extends ChangeNotifier {
   }
 
   Future<void> updateMessage(String messageId, String newContent) async {
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;
@@ -145,7 +167,7 @@ class StudyGroupsViewModel extends ChangeNotifier {
   }
 
   Future<void> deleteMessage(String messageId) async {
-    if (_isLoading) return; // Prevent concurrent calls
+    if (_isLoading) return;
 
     try {
       _isLoading = true;

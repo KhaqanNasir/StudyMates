@@ -77,11 +77,6 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
@@ -93,7 +88,6 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
   Widget build(BuildContext context) {
     return Consumer<StudyGroupsViewModel>(
       builder: (context, viewModel, child) {
-        print("Building with selectedGroup: ${viewModel.selectedGroup?.name}");
         return Scaffold(
           backgroundColor: const Color(0xFFF5F7FA),
           appBar: AppBar(
@@ -122,7 +116,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
               IconButton(
                 icon: const Icon(Icons.info_outline, color: Colors.white),
                 onPressed: () {
-                  _showGroupInfo(context, viewModel.selectedGroup!);
+                  _showGroupInfo(context, viewModel);
                 },
               ),
             ]
@@ -144,13 +138,13 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeroSection(),
+          _buildHeroSection(viewModel),
           _buildGroupFeatures(),
           _buildFilterSection(viewModel),
           if (viewModel.isLoading)
             const Center(child: CircularProgressIndicator())
           else if (viewModel.errorMessage != null)
-            Center(child: Text(viewModel.errorMessage!))
+            Center(child: Text("Error: No groups found"))
           else
             _buildGroupsList(viewModel.studyGroups, viewModel),
           _buildFaqSection(),
@@ -160,7 +154,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(StudyGroupsViewModel viewModel) {
     return Container(
       height: 240,
       width: double.infinity,
@@ -225,7 +219,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
                       const Icon(Icons.group_add, color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        "3 active groups available",
+                        "${viewModel.studyGroups.length} active groups available",
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: Colors.white,
@@ -452,7 +446,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
             Icon(Icons.group, size: 60, color: Colors.grey[300]),
             const SizedBox(height: 15),
             Text(
-              viewModel.selectedDepartment == null || viewModel.selectedDepartment == 'All Departments'
+              viewModel.selectedDepartment == null
                   ? "No study groups available"
                   : "No groups found in the ${viewModel.selectedDepartment} department",
               textAlign: TextAlign.center,
@@ -508,7 +502,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
-          _viewGroupDetails(context, group);
+          _viewGroupDetails(context, group, viewModel);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -522,7 +516,6 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
                   height: 70,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    print("Image asset error: $error");
                     return Container(
                       width: 70,
                       height: 70,
@@ -625,223 +618,412 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
     );
   }
 
-  void _viewGroupDetails(BuildContext context, StudyGroup group) {
+  void _viewGroupDetails(BuildContext context, StudyGroup group, StudyGroupsViewModel viewModel) async {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            color: Colors.white,
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          'image/logo.png',
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print("Image asset error: $error");
-                            return Container(
-                              width: 60,
-                              height: 60,
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.group, color: Colors.grey),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (BuildContext modalContext) {
+        return ChangeNotifierProvider.value(
+          value: viewModel,
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.8,
+            builder: (context, scrollController) => FutureBuilder<Map<String, dynamic>?>(
+              future: viewModel.firestoreService.getCurrentUserData(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final currentUserData = snapshot.data!;
+                final currentUserName = currentUserData['fullName'] as String;
+
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    color: Colors.white,
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text(
-                              group.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Poppins',
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                'image/logo.png',
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 60,
+                                    height: 60,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.group, color: Colors.grey),
+                                  );
+                                },
                               ),
                             ),
-                            Text(
-                              "${group.department} • ${group.subject}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontFamily: 'Poppins',
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    group.name,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    "${group.department} • ${group.subject}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    "Description",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    group.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[800],
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Text(
-                              "${group.memberCount}",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[800],
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            Text(
-                              "Members",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Text(
-                              "${group.activeMembers}",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            Text(
-                              "Online",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Participants",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 150, // Constrain participant list height
-                    child: ListView.builder(
-                      controller: scrollController,
-                      shrinkWrap: true,
-                      itemCount: group.participants.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return _buildParticipantTile("You", true);
-                        } else {
-                          return _buildParticipantTile(group.participants[index - 1], false);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: SizedBox(
-                      width: 200,
-                      child: Consumer<StudyGroupsViewModel>(
-                        builder: (context, viewModel, _) => ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            if (!group.isJoined) {
-                              viewModel.joinGroup(group.id);
-                            }
-                            viewModel.selectGroup(group);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: group.isJoined ? Colors.grey[200] : Colors.blueAccent,
-                            foregroundColor: group.isJoined ? Colors.grey[800] : Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: Text(
-                            group.isJoined ? "Open Chat" : "Join Group",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Poppins',
-                            ),
+                        const SizedBox(height: 15),
+                        Text(
+                          "Description",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                            fontFamily: 'Poppins',
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 5),
+                        Text(
+                          group.description,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[800],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "${group.memberCount}",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[800],
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    "Members",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "${group.activeMembers}",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    "Online",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Participants",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: group.participants.length,
+                            itemBuilder: (context, index) {
+                              final participantName = group.participants[index] as String;
+                              final isCurrentUser = participantName == currentUserName;
+                              return _buildParticipantTile(participantName, isCurrentUser);
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Center(
+                          child: SizedBox(
+                            width: 200,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                if (!group.isJoined) {
+                                  await viewModel.joinGroup(group.id);
+                                  viewModel.selectGroup(group);
+                                } else {
+                                  viewModel.selectGroup(group);
+                                }
+                                Navigator.pop(modalContext);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: group.isJoined ? Colors.grey[200] : Colors.blueAccent,
+                                foregroundColor: group.isJoined ? Colors.grey[800] : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              child: Text(
+                                group.isJoined ? "Open Chat" : "Join Group",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (group.isJoined)
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () async {
+                                await viewModel.leaveGroup(group.id);
+                                Navigator.pop(modalContext);
+                              },
+                              icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                              label: const Text(
+                                "Leave Group",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                );
+              },
             ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  void _showGroupInfo(BuildContext context, StudyGroupsViewModel viewModel) {
+    if (viewModel.selectedGroup == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      builder: (BuildContext modalContext) {
+        return ChangeNotifierProvider.value(
+          value: viewModel,
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.8,
+            builder: (context, scrollController) => FutureBuilder<Map<String, dynamic>?>(
+              future: viewModel.firestoreService.getCurrentUserData(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final currentUserData = snapshot.data!;
+                final currentUserName = currentUserData['fullName'] as String;
+
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    color: Colors.white,
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                'image/logo.png',
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 60,
+                                    height: 60,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.group, color: Colors.grey),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    viewModel.selectedGroup!.name,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  Text(
+                                    "${viewModel.selectedGroup!.department} • ${viewModel.selectedGroup!.subject}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Description",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          viewModel.selectedGroup!.description,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[800],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            _buildStatCard("Members", "${viewModel.selectedGroup!.memberCount}", Icons.people),
+                            const SizedBox(width: 10),
+                            _buildStatCard("Online", "${viewModel.selectedGroup!.activeMembers}", Icons.circle, Colors.green),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Participants",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: viewModel.selectedGroup!.participants.length,
+                            itemBuilder: (context, index) {
+                              final participantName = viewModel.selectedGroup!.participants[index] as String;
+                              final isCurrentUser = participantName == currentUserName;
+                              return _buildParticipantTile(participantName, isCurrentUser);
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        if (viewModel.selectedGroup!.isJoined)
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                viewModel.leaveGroup(viewModel.selectedGroup!.id);
+                                viewModel.clearSelectedGroup();
+                                Navigator.pop(modalContext);
+                              },
+                              icon: const Icon(Icons.exit_to_app, color: Colors.red),
+                              label: const Text(
+                                "Leave Group",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildChatInterface(BuildContext context, StudyGroupsViewModel viewModel) {
     if (viewModel.selectedGroup == null) {
-      print("Selected group is null, returning error screen");
       return const Center(child: Text("Error: No group selected"));
     }
 
-    final firestoreService = FirestoreService();
+    final firestoreService = viewModel.firestoreService;
     return Column(
       children: [
         Expanded(
@@ -852,7 +1034,6 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
-                print("StreamBuilder error: ${snapshot.error}");
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
               final messages = snapshot.data ?? [];
@@ -1075,7 +1256,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
   }
 
   Widget _buildMessageInput(BuildContext context, StudyGroupsViewModel viewModel) {
-    final firestoreService = FirestoreService();
+    final firestoreService = viewModel.firestoreService;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -1225,158 +1406,6 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
     );
   }
 
-  void _showGroupInfo(BuildContext context, StudyGroup group) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        builder: (context, scrollController) => Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            color: Colors.white,
-          ),
-          child: SingleChildScrollView(
-            controller: scrollController,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.asset(
-                          'image/logo.png',
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            print("Image asset error: $error");
-                            return Container(
-                              width: 60,
-                              height: 60,
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.group, color: Colors.grey),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              group.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            Text(
-                              "${group.department} • ${group.subject}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Description",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    group.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[800],
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      _buildStatCard("Members", "${group.memberCount}", Icons.people),
-                      const SizedBox(width: 10),
-                      _buildStatCard("Online", "${group.activeMembers}", Icons.circle, Colors.green),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    "Participants",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 150,
-                    child: ListView.builder(
-                      controller: scrollController,
-                      shrinkWrap: true,
-                      itemCount: group.participants.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return _buildParticipantTile("You", true);
-                        } else {
-                          return _buildParticipantTile(group.participants[index - 1], false);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.read<StudyGroupsViewModel>().leaveGroup(group.id);
-                        context.read<StudyGroupsViewModel>().clearSelectedGroup();
-                      },
-                      icon: const Icon(Icons.exit_to_app, color: Colors.red),
-                      label: const Text(
-                        "Leave Group",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildStatCard(String label, String value, IconData icon, [Color? iconColor]) {
     return Expanded(
       child: Container(
@@ -1430,6 +1459,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
   Widget _buildParticipantTile(String name, bool isCurrentUser) {
     return ListTile(
       leading: CircleAvatar(
+        radius: 16,
         backgroundColor: isCurrentUser ? Colors.blueAccent : _getAvatarColor(name),
         child: Text(
           name[0].toUpperCase(),
@@ -1459,7 +1489,7 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
           ? const Chip(
         backgroundColor: Colors.blue,
         label: Text(
-          "Admin",
+          "You",
           style: TextStyle(
             color: Colors.white,
             fontSize: 10,
@@ -1538,25 +1568,90 @@ class _StudyGroupsScreenContentState extends State<_StudyGroupsScreenContent> {
   Widget _buildFooter(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-      color: Colors.blueAccent.withOpacity(0.05),
+      margin: const EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+        color: Colors.blueAccent.withOpacity(0.08),
+      ),
       child: Column(
         children: [
-          Text(
-            "Study Mates",
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Colors.blueAccent,
+          // Main footer content
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+            child: Column(
+              children: [
+                // App logo/title
+                Column(
+                  children: [
+                    Icon(
+                      Icons.school,
+                      size: 40,
+                      color: Colors.blueAccent,
+                    ),
+                    Text(
+                      "Study Mates",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blueAccent,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Copyright text
+                Text(
+                  "© 2025 COMSATS University Islamabad, Sahiwal Campus",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            "© 2025 COMSATS University Islamabad, Sahiwal Campus",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              color: Colors.grey[600],
+
+          // Developer credit section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.blueAccent.withOpacity(0.12),
+              border: Border(
+                top: BorderSide(
+                  color: Colors.blueAccent.withOpacity(0.2),
+                  width: 1,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Developed by ",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                Text(
+                  "Muhammad Khaqan Nasir",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.favorite,
+                  color: Colors.red.shade400,
+                  size: 14,
+                ),
+              ],
             ),
           ),
         ],
