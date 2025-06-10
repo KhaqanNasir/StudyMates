@@ -4,10 +4,13 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import '../model/study_group_model.dart';
+import '../model/discussion_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  FirebaseFirestore get firestore => _firestore;
 
   bool get isAuthenticated => _auth.currentUser != null;
   String? get currentUserId => _auth.currentUser?.uid;
@@ -367,6 +370,82 @@ class FirestoreService {
       await _firestore.collection('messages').doc(messageId).delete();
     } catch (e) {
       throw Exception('Failed to delete message: $e');
+    }
+  }
+
+  Stream<List<DocumentSnapshot>> getThreadsStream(String category, String searchQuery) {
+    Query query = _firestore.collection('threads').orderBy('timestamp', descending: true);
+    if (category != 'All') {
+      query = query.where('category', isEqualTo: category);
+    }
+    if (searchQuery.isNotEmpty) {
+      query = query.where('title', isGreaterThanOrEqualTo: searchQuery.toLowerCase());
+    }
+    return query.snapshots().map((snapshot) => snapshot.docs);
+  }
+
+  Future<void> addThread(DiscussionThread thread) async {
+    try {
+      if (!isAuthenticated) throw Exception('User must be authenticated');
+
+      await _firestore.collection('threads').doc(thread.id).set(thread.toFirestore());
+    } catch (e) {
+      throw Exception('Failed to add thread: $e');
+    }
+  }
+
+  Stream<List<ThreadComment>> getCommentsStream(String threadId) {
+    return _firestore
+        .collection('threads')
+        .doc(threadId)
+        .collection('thread_comments')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => ThreadComment.fromFirestore(doc)).toList());
+  }
+
+  Future<void> addComment(String threadId, ThreadComment comment) async {
+    try {
+      if (!isAuthenticated) throw Exception('User must be authenticated');
+
+      await _firestore
+          .collection('threads')
+          .doc(threadId)
+          .collection('thread_comments')
+          .doc(comment.id)
+          .set(comment.toFirestore());
+      await _firestore.collection('threads').doc(threadId).update({
+        'replies': FieldValue.increment(1),
+      }).catchError((e) {
+        print('Failed to update replies count: $e');
+      });
+    } catch (e) {
+      throw Exception('Failed to add comment: $e');
+    }
+  }
+
+  Future<void> toggleUpvote(String threadId, String userId) async {
+    try {
+      if (!isAuthenticated) throw Exception('User must be authenticated');
+
+      final threadRef = _firestore.collection('threads').doc(threadId);
+      final doc = await threadRef.get();
+      final thread = DiscussionThread.fromFirestore(doc, userId);
+      final isUpvoted = thread.upvotedBy.contains(userId);
+
+      if (isUpvoted) {
+        await threadRef.update({
+          'upvotes': FieldValue.increment(-1),
+          'upvotedBy': FieldValue.arrayRemove([userId]),
+        });
+      } else {
+        await threadRef.update({
+          'upvotes': FieldValue.increment(1),
+          'upvotedBy': FieldValue.arrayUnion([userId]),
+        });
+      }
+    } catch (e) {
+      throw Exception('Failed to toggle upvote: $e');
     }
   }
 }

@@ -68,9 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
       "shadowColor": const Color(0xFFFF9800)
     },
     {
-      "icon": Icons.schedule,
-      "title": "Planner",
-      "desc": "Track assignments and exam dates.",
+      "icon": Icons.forum,
+      "title": "Discussion",
+      "desc": "Engage in academic discussions & debates.",
       "route": "/discussion",
       "gradient": [const Color(0xFFF3E5F5), const Color(0xFFE1BEE7)], // Purple gradient
       "iconColor": const Color(0xFF6A1B9A),
@@ -187,8 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Groups',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.schedule),
-            label: 'Planner',
+            icon: Icon(Icons.forum),
+            label: 'Discussion',
           ),
         ],
       ),
@@ -669,7 +669,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Icon(
                       f["icon"] as IconData,
                       size: 80,
-                      color: Colors.blueGrey.withOpacity(0.15),
+                      color: Colors.grey.withOpacity(0.15),
                     ),
                   ),
 // Main content
